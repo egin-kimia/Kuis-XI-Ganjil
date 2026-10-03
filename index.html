@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kuis Kimia XI — Siapa Ingin Jadi Juara Kimia</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #05081a;
+  color: #fff;
+  user-select: none;
+  overflow: hidden;
+}
+#bg3d {
+  position: fixed; inset: 0; z-index: 0;
+  display: block; width: 100% !important; height: 100% !important;
+  pointer-events: none;
+}
+#app {
+  position: relative; z-index: 1;
+  max-width: 520px; margin: 0 auto;
+  height: 100vh; height: 100dvh;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 12px;
+  display: flex; flex-direction: column;
+  scrollbar-width: thin;
+}
+#app::-webkit-scrollbar { width: 4px; }
+#app::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 2px; }
+
+.screen { display: none; flex-direction: column; gap: 12px; }
+.screen.active { display: flex; }
+
+.btn {
+  display: block; width: 100%;
+  min-height: 48px; padding: 12px 16px;
+  border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 800; letter-spacing: 1px;
+  cursor: pointer; transition: transform .15s, box-shadow .2s, background .2s;
+  font-family: inherit;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(180deg, #ffe066 0%, #ffd700 40%, #b8860b 100%);
+  color: #1a1f4a; box-shadow: 0 6px 20px rgba(255,215,0,0.35), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.btn-secondary {
+  background: rgba(255,255,255,0.06); color: #ffd700;
+  border: 1px solid rgba(255,215,0,0.4);
+}
+.btn-danger {
+  background: rgba(239,68,68,0.15); color: #fca5a5;
+  border: 1px solid rgba(239,68,68,0.4);
+}
+
+/* START */
+.start-wrap {
+  min-height: calc(100dvh - 24px);
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center; gap: 14px; padding: 20px 4px;
+}
+.logo-badge {
+  font-size: 10px; letter-spacing: 4px;
+  color: #ffd700; border: 1px solid #ffd700;
+  padding: 6px 14px; border-radius: 20px;
+  background: rgba(255,215,0,0.08);
+}
+.title-main {
+  font-size: 26px; font-weight: 900; line-height: 1.1;
+  background: linear-gradient(180deg, #fff7c2 0%, #ffd700 50%, #b8860b 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 30px rgba(255,215,0,0.5);
+  letter-spacing: 1px;
+}
+.title-sub {
+  font-size: 11px; color: #cfd6ff; letter-spacing: 2px; font-weight: 600;
+}
+.start-info {
+  font-size: 12px; color: #8892c8; line-height: 1.75;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 12px; padding: 12px 14px;
+  width: 100%;
+}
+.start-info b { color: #ffd700; }
+.start-info .prize {
+  display: block; margin-top: 8px; padding-top: 8px;
+  border-top: 1px dashed rgba(255,215,0,0.25);
+  font-size: 13px; color: #fff7c2; font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.input-name {
+  width: 100%; padding: 14px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,215,0,0.35);
+  border-radius: 12px; color: #fff;
+  font-size: 15px; font-family: inherit; font-weight: 600;
+  outline: none; text-align: center; letter-spacing: 0.5px;
+}
+.input-name::placeholder { color: #6b74a8; }
+.input-name:focus { border-color: #ffd700; box-shadow: 0 0 0 3px rgba(255,215,0,0.15); }
+
+/* HUD */
+.hud { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 6px; }
+.hud-item {
+  background: linear-gradient(180deg, rgba(20,26,58,0.95), rgba(12,18,38,0.95));
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 10px; padding: 6px 8px; text-align: center;
+}
+.hud-label {
+  display: block; font-size: 9px; letter-spacing: 1.5px;
+  color: #8892c8; font-weight: 700;
+}
+.hud-value {
+  display: block; font-size: 15px; font-weight: 900;
+  color: #ffd700; margin-top: 1px;
+}
+
+.timer-bar {
+  height: 6px; background: rgba(255,255,255,0.08);
+  border-radius: 3px; overflow: hidden; position: relative;
+}
+.timer-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #22c55e, #ffd700);
+  transition: width .1s linear, background .3s;
+  border-radius: 3px;
+}
+.timer-fill.low { background: linear-gradient(90deg, #ef4444, #f97316); }
+.timer-text {
+  text-align: right; font-size: 11px; color: #8892c8;
+  margin-top: -4px; font-weight: 700;
+}
+.timer-text span { color: #ffd700; font-size: 13px; }
+
+.lifelines { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.lifeline {
+  padding: 10px 2px; border-radius: 10px;
+  background: rgba(74,107,255,0.15);
+  border: 1.5px solid rgba(74,107,255,0.5);
+  color: #a5b4fc; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.3px; cursor: pointer;
+  transition: all .2s; font-family: inherit;
+  min-height: 44px;
+  line-height: 1.15;
+}
+.lifeline:active { transform: scale(0.95); }
+.lifeline.used {
+  opacity: 0.35; text-decoration: line-through;
+  pointer-events: none; background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.1); color: #6b74a8;
+}
+
+.question-card {
+  background: linear-gradient(180deg, #131a3a 0%, #0c1226 100%);
+  border: 2px solid #ffd700;
+  border-radius: 16px; padding: 16px 14px;
+  box-shadow: 0 0 30px rgba(255,215,0,0.2), inset 0 0 20px rgba(255,215,0,0.05);
+  position: relative;
+}
+.topic-tag {
+  display: inline-block; font-size: 9px; letter-spacing: 1.5px;
+  font-weight: 800; color: #1a1f4a;
+  background: linear-gradient(90deg, #ffe066, #ffd700);
+  padding: 3px 10px; border-radius: 10px;
+  margin-bottom: 10px;
+}
+.question-text {
+  font-size: 15px; font-weight: 700; line-height: 1.5;
+  color: #fff7c2;
+}
+
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 12px;
+  background: linear-gradient(180deg, rgba(20,26,58,0.95), rgba(12,18,38,0.95));
+  border: 1.5px solid rgba(255,215,0,0.25);
+  color: #e5e7eb; font-size: 14px; font-weight: 600;
+  text-align: left; cursor: pointer;
+  transition: all .2s; font-family: inherit;
+  min-height: 48px;
+}
+.option:active { transform: scale(0.98); }
+.option-letter {
+  flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 12px; color: #ffd700;
+}
+.option-text { flex: 1; line-height: 1.35; }
+.option.correct {
+  background: linear-gradient(180deg, rgba(34,197,94,0.35), rgba(22,163,74,0.25));
+  border-color: #22c55e; color: #dcfce7;
+  animation: pulseGreen 0.5s;
+}
+.option.correct .option-letter { background: #22c55e; border-color: #22c55e; color: #fff; }
+.option.wrong {
+  background: linear-gradient(180deg, rgba(239,68,68,0.35), rgba(185,28,28,0.25));
+  border-color: #ef4444; color: #fee2e2;
+}
+.option.wrong .option-letter { background: #ef4444; border-color: #ef4444; color: #fff; }
+.option.eliminated { opacity: 0.25; pointer-events: none; text-decoration: line-through; }
+.option.disabled { pointer-events: none; }
+
+@keyframes pulseGreen {
+  0%, 100% { box-shadow: 0 0 0 rgba(34,197,94,0); }
+  50% { box-shadow: 0 0 25px rgba(34,197,94,0.8); }
+}
+
+.feedback {
+  display: none;
+  background: linear-gradient(180deg, #131a3a, #0c1226);
+  border: 1.5px solid rgba(255,215,0,0.35);
+  border-radius: 14px; padding: 14px;
+  animation: slideUp 0.35s ease-out;
+}
+.feedback.show { display: block; }
+.feedback-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; letter-spacing: 1px; }
+.feedback-title.ok { color: #4ade80; }
+.feedback-title.no { color: #f87171; }
+.feedback-text { font-size: 12.5px; line-height: 1.55; color: #cfd6ff; margin-bottom: 12px; }
+.feedback-text b { color: #ffd700; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 50;
+  background: rgba(5,8,26,0.85);
+  backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  max-width: 460px; width: 100%;
+  background: linear-gradient(180deg, #131a3a, #0c1226);
+  border: 2px solid #ffd700; border-radius: 18px;
+  padding: 20px 18px;
+  box-shadow: 0 0 50px rgba(255,215,0,0.3);
+  animation: zoomIn 0.3s ease-out;
+}
+@keyframes zoomIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.modal-title {
+  font-size: 15px; font-weight: 900; color: #ffd700;
+  text-align: center; letter-spacing: 2px; margin-bottom: 16px;
+}
+.audience-bars { display: flex; align-items: flex-end; gap: 8px; height: 160px; margin-bottom: 8px; }
+.audience-col {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; height: 100%; gap: 6px;
+}
+.audience-pct { font-size: 12px; font-weight: 900; color: #ffd700; }
+.audience-bar {
+  width: 100%; background: linear-gradient(180deg, #4a6bff, #2d47b8);
+  border-radius: 6px 6px 0 0; transition: height 0.6s ease-out;
+  min-height: 4px;
+}
+.audience-bar.best { background: linear-gradient(180deg, #ffd700, #b8860b); }
+.audience-label {
+  font-size: 12px; font-weight: 900; color: #8892c8;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+}
+.phone-message {
+  font-size: 14px; line-height: 1.6; color: #cfd6ff; text-align: center;
+  padding: 10px 4px;
+}
+.phone-message b { color: #ffd700; font-size: 20px; display: block; margin-top: 8px; }
+
+/* END */
+.end-wrap {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 20px 4px; min-height: calc(100dvh - 24px);
+  justify-content: center;
+}
+.end-header { text-align: center; }
+.end-title {
+  font-size: 24px; font-weight: 900; letter-spacing: 2px;
+  background: linear-gradient(180deg, #fff7c2, #ffd700, #b8860b);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.end-title.lose {
+  background: linear-gradient(180deg, #fca5a5, #ef4444, #991b1b);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.end-sub { font-size: 12px; color: #8892c8; letter-spacing: 1.5px; margin-top: 4px; }
+
+.score-big {
+  text-align: center; padding: 18px;
+  background: linear-gradient(180deg, rgba(255,215,0,0.12), rgba(255,215,0,0.02));
+  border: 2px solid #ffd700; border-radius: 16px;
+  box-shadow: 0 0 30px rgba(255,215,0,0.2);
+}
+.score-big .label { font-size: 10px; letter-spacing: 3px; color: #8892c8; font-weight: 700; }
+.score-big .value {
+  font-size: 34px; font-weight: 900; color: #ffd700;
+  letter-spacing: 1px; margin-top: 4px;
+  text-shadow: 0 0 20px rgba(255,215,0,0.6);
+}
+.score-big .prize-note {
+  font-size: 11px; color: #cfd6ff; margin-top: 4px;
+  letter-spacing: 1px; font-weight: 600;
+}
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.stat-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 10px; padding: 10px; text-align: center;
+}
+.stat-item .lbl { font-size: 9px; letter-spacing: 1px; color: #8892c8; font-weight: 700; }
+.stat-item .val { font-size: 18px; font-weight: 900; color: #ffd700; margin-top: 3px; }
+
+.summary-list {
+  max-height: 200px; overflow-y: auto;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.summary-list::-webkit-scrollbar { width: 3px; }
+.summary-list::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); }
+.summary-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 8px;
+  font-size: 11px; background: rgba(255,255,255,0.03);
+}
+.summary-row.ok { border-left: 3px solid #22c55e; }
+.summary-row.no { border-left: 3px solid #ef4444; }
+.summary-row .num { font-weight: 900; color: #ffd700; width: 22px; flex-shrink: 0; }
+.summary-row .txt { flex: 1; color: #cfd6ff; line-height: 1.3; }
+.summary-row .icon { font-size: 13px; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<canvas id="bg3d"></canvas>
+
+<div id="app">
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen active">
+    <div class="start-wrap">
+      <div class="logo-badge">KUIS KIMIA KELAS XI</div>
+      <h1 class="title-main">SIAPA INGIN<br>JADI JUARA KIMIA?</h1>
+      <p class="title-sub">IKATAN · BENTUK MOLEKUL · GAYA ANTARMOLEKUL · TERMOKIMIA</p>
+
+      <div class="start-info">
+        🎯 <b>15 soal</b> · <b>3 stage</b><br>
+        🆘 <b>3 bantuan</b>: 50:50, Tanya Teman, Tanya Guru<br>
+        ⏱️ Waktu <b>1 menit (60 detik)</b> per soal
+        <span class="prize">🏆 HADIAH UTAMA: <b>Rp 3.000.000 (Lembar Daun)</b></span>
+      </div>
+
+      <input type="text" id="inputNama" class="input-name" placeholder="Masukkan namamu..." maxlength="30" autocomplete="off">
+
+      <button class="btn btn-primary" id="btnMulai">🎮 MULAI KUIS</button>
+      <button class="btn btn-secondary hidden" id="btnMuat">📂 MUAT PROGRES TERSIMPAN</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="screen">
+    <div class="hud">
+      <div class="hud-item">
+        <span class="hud-label">STAGE</span>
+        <span class="hud-value" id="hudStage">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">SOAL</span>
+        <span class="hud-value" id="hudSoal">1/15</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">SKOR</span>
+        <span class="hud-value" id="hudSkor">0</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="timer-text">⏱ <span id="timerText">60</span>s</div>
+    </div>
+
+    <div class="lifelines">
+      <button class="lifeline" data-ll="fifty" id="llFifty">50:50</button>
+      <button class="lifeline" data-ll="teman" id="llTeman">👥 TANYA TEMAN</button>
+      <button class="lifeline" data-ll="guru" id="llGuru">📞 TANYA GURU</button>
+    </div>
+
+    <div class="question-card">
+      <div class="topic-tag" id="topicTag">IKATAN KIMIA</div>
+      <div class="question-text" id="questionText">...</div>
+    </div>
+
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback">
+      <div class="feedback-title" id="feedbackTitle"></div>
+      <div class="feedback-text" id="feedbackText"></div>
+      <button class="btn btn-primary" id="btnNext">LANJUT →</button>
+    </div>
+
+    <button class="btn btn-danger" id="btnQuit" style="margin-top: 4px;">⏸️ Keluar & Simpan</button>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="endScreen" class="screen">
+    <div class="end-wrap">
+      <div class="end-header">
+        <div class="end-title" id="endTitle">SELAMAT!</div>
+        <div class="end-sub" id="endSub">KAMU BERHASIL MENYELESAIKAN KUIS</div>
+      </div>
+
+      <div class="score-big">
+        <div class="label">SKOR AKHIR</div>
+        <div class="value" id="endScore">0</div>
+        <div class="prize-note" id="endPrizeNote"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="lbl">BENAR</div>
+          <div class="val" id="statBenar">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="lbl">SALAH</div>
+          <div class="val" id="statSalah">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="lbl">BANTUAN</div>
+          <div class="val" id="statBantuan">0</div>
+        </div>
+      </div>
+
+      <div class="summary-list" id="summaryList"></div>
+
+      <button class="btn btn-primary" id="btnDownload">📥 UNDUH HASIL (.JSON)</button>
+      <button class="btn btn-secondary" id="btnMainLagi">🔄 MAIN LAGI</button>
+      <button class="btn btn-danger" id="btnKeStart">🏠 KEMBALI KE MENU</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">HASIL POLLING TEMAN-TEMAN</div>
+    <div id="modalBody"></div>
+    <button class="btn btn-secondary" id="btnModalClose" style="margin-top: 14px;">TUTUP</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+<script>
+/* =============================================================
+   1. BANK SOAL KIMIA KELAS XI
+   ============================================================= */
+const SOAL = [
+  /* ---------- STAGE 1 ---------- */
+  { id: 1, stage: 1, topik: "Ikatan Kimia",
+    pertanyaan: "Ikatan yang terbentuk antara atom Na (Z=11) dan Cl (Z=17) adalah...",
+    pilihan: ["Kovalen polar", "Ionik", "Kovalen nonpolar", "Logam"],
+    jawabanBenar: 1,
+    pembahasan: "Na melepas 1 elektron (Na⁺) dan Cl menerima 1 elektron (Cl⁻). Serah terima elektron menghasilkan ikatan ionik." },
+
+  { id: 2, stage: 1, topik: "Bentuk Molekul",
+    pertanyaan: "Bentuk molekul CH₄ berdasarkan teori VSEPR adalah...",
+    pilihan: ["Tetrahedral", "Trigonal planar", "Linear", "Bipiramidal trigonal"],
+    jawabanBenar: 0,
+    pembahasan: "CH₄ memiliki 4 pasangan elektron ikatan (PEI) tanpa PEB → AX₄ → geometri tetrahedral dengan sudut 109,5°." },
+
+  { id: 3, stage: 1, topik: "Gaya Antarmolekul",
+    pertanyaan: "Gaya antarmolekul yang paling kuat antara molekul air (H₂O) adalah...",
+    pilihan: ["Gaya London", "Dipol-dipol", "Ikatan hidrogen", "Gaya ion-dipol"],
+    jawabanBenar: 2,
+    pembahasan: "O sangat elektronegatif dan berikatan langsung dengan H. Atom H terikat pada N, O, atau F memungkinkan terbentuknya ikatan hidrogen." },
+
+  { id: 4, stage: 1, topik: "Termokimia",
+    pertanyaan: "Reaksi yang melepaskan kalor ke lingkungan disebut reaksi...",
+    pilihan: ["Endoterm", "Eksoterm", "Isokhorik", "Adiabatik"],
+    jawabanBenar: 1,
+    pembahasan: "Reaksi eksoterm melepaskan kalor dari sistem ke lingkungan, sehingga ΔH bernilai negatif." },
+
+  { id: 5, stage: 1, topik: "Ikatan Kimia",
+    pertanyaan: "Ikatan kovalen polar terjadi pada molekul...",
+    pilihan: ["H₂", "Cl₂", "HCl", "O₂"],
+    jawabanBenar: 2,
+    pembahasan: "HCl memiliki perbedaan keelektronegatifan (Cl > H), sehingga pasangan elektron tertarik ke Cl → ikatan kovalen polar." },
+
+  { id: 6, stage: 1, topik: "Ikatan Kimia",
+    pertanyaan: "Ikatan yang terjadi pada logam natrium (Na) adalah...",
+    pilihan: ["Ionik", "Kovalen", "Logam", "Hidrogen"],
+    jawabanBenar: 2,
+    pembahasan: "Pada logam, elektron valensi bergerak bebas membentuk 'lautan elektron' yang mengikat ion-ion positif → ikatan logam." },
+
+  /* ---------- STAGE 2 ---------- */
+  { id: 7, stage: 2, topik: "Bentuk Molekul",
+    pertanyaan: "Bentuk molekul NH₃ berdasarkan teori VSEPR adalah...",
+    pilihan: ["Trigonal planar", "Trigonal piramida", "Tetrahedral", "Bentuk V"],
+    jawabanBenar: 1,
+    pembahasan: "N memiliki 3 PEI dan 1 PEB → AX₃E → geometri trigonal piramida, sudut ikatan ~107°." },
+
+  { id: 8, stage: 2, topik: "Termokimia",
+    pertanyaan: "Diketahui: 2H₂(g) + O₂(g) → 2H₂O(l), ΔH = -572 kJ. Maka ΔH pembentukan 1 mol H₂O(l) adalah...",
+    pilihan: ["-572 kJ", "-286 kJ", "+286 kJ", "+572 kJ"],
+    jawabanBenar: 1,
+    pembahasan: "Untuk 1 mol H₂O, ΔH = -572 ÷ 2 = -286 kJ/mol." },
+
+  { id: 9, stage: 2, topik: "Ikatan Kimia",
+    pertanyaan: "Senyawa yang memiliki ikatan kovalen koordinasi adalah...",
+    pilihan: ["NaCl", "H₂O", "NH₄⁺", "CH₄"],
+    jawabanBenar: 2,
+    pembahasan: "Pada NH₄⁺, ikatan keempat terbentuk dari pasangan elektron bebas N yang disumbangkan ke H⁺ (kovalen koordinasi)." },
+
+  { id: 10, stage: 2, topik: "Gaya Antarmolekul",
+    pertanyaan: "Urutan kekuatan gaya London dari terlemah ke terkuat untuk halogen adalah...",
+    pilihan: ["F₂ < Cl₂ < Br₂ < I₂", "I₂ < Br₂ < Cl₂ < F₂", "Cl₂ < F₂ < I₂ < Br₂", "Br₂ < I₂ < F₂ < Cl₂"],
+    jawabanBenar: 0,
+    pembahasan: "Gaya London meningkat seiring bertambahnya Mr (jumlah elektron). F₂ (Mr=38) paling lemah, I₂ (Mr=254) paling kuat." },
+
+  { id: 11, stage: 2, topik: "Bentuk Molekul",
+    pertanyaan: "Hibridisasi atom pusat pada molekul BF₃ adalah...",
+    pilihan: ["sp", "sp²", "sp³", "sp³d"],
+    jawabanBenar: 1,
+    pembahasan: "BF₃ memiliki 3 PEI tanpa PEB → orbital hibrida sp² → geometri trigonal planar, sudut 120°." },
+
+  { id: 12, stage: 2, topik: "Termokimia",
+    pertanyaan: "Pada reaksi endoterm, entalpi sistem akan...",
+    pilihan: ["Berkurang (ΔH negatif)", "Bertambah (ΔH positif)", "Tetap", "Menjadi nol"],
+    jawabanBenar: 1,
+    pembahasan: "Reaksi endoterm menyerap kalor dari lingkungan, entalpi sistem bertambah, ΔH bernilai positif." },
+
+  /* ---------- STAGE 3 ---------- */
+  { id: 13, stage: 3, topik: "Termokimia",
+    pertanyaan: "Diketahui ΔHf° CO₂ = -394 kJ/mol; ΔHf° H₂O = -286 kJ/mol; ΔHf° C₂H₅OH = -278 kJ/mol. ΔH pembakaran 1 mol C₂H₅OH adalah...",
+    pilihan: ["-1368 kJ/mol", "+1368 kJ/mol", "-1646 kJ/mol", "-1924 kJ/mol"],
+    jawabanBenar: 0,
+    pembahasan: "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O. ΔH = [2(-394) + 3(-286)] - (-278) = -1646 + 278 = -1368 kJ/mol." },
+
+  { id: 14, stage: 3, topik: "Ikatan Kimia",
+    pertanyaan: "Molekul yang bersifat nonpolar meskipun memiliki ikatan polar adalah...",
+    pilihan: ["H₂O", "NH₃", "CO₂", "HCl"],
+    jawabanBenar: 2,
+    pembahasan: "CO₂ berbentuk linear (O=C=O). Momen dipol kedua ikatan C=O sama besar dan berlawanan arah sehingga saling meniadakan → nonpolar." },
+
+  { id: 15, stage: 3, topik: "Bentuk Molekul",
+    pertanyaan: "Bentuk molekul XeF₄ berdasarkan teori VSEPR adalah...",
+    pilihan: ["Tetrahedral", "Bujur sangkar planar", "Oktahedral", "Trigonal bipiramidal"],
+    jawabanBenar: 1,
+    pembahasan: "Xe memiliki 4 PEI + 2 PEB → AX₄E₂ → geometri bujur sangkar planar (square planar)." },
+
+  { id: 16, stage: 3, topik: "Gaya Antarmolekul",
+    pertanyaan: "Titik didih H₂O lebih tinggi daripada H₂S terutama karena...",
+    pilihan: ["Mr H₂O lebih besar", "H₂O memiliki ikatan hidrogen", "H₂O memiliki gaya London lebih kuat", "H₂O bersifat nonpolar"],
+    jawabanBenar: 1,
+    pembahasan: "H₂O dapat membentuk ikatan hidrogen antarmolekul (O sangat elektronegatif), sedangkan H₂S hanya dipol-dipol." },
+
+  { id: 17, stage: 3, topik: "Termokimia",
+    pertanyaan: "Kalor untuk menaikkan suhu 100 g air dari 25°C ke 75°C adalah... (c air = 4,2 J/g°C)",
+    pilihan: ["21.000 J", "10.500 J", "42.000 J", "4.200 J"],
+    jawabanBenar: 0,
+    pembahasan: "q = m·c·ΔT = 100 × 4,2 × (75-25) = 100 × 4,2 × 50 = 21.000 J." },
+
+  { id: 18, stage: 3, topik: "Gaya Antarmolekul",
+    pertanyaan: "Molekul berikut yang dapat membentuk ikatan hidrogen antarmolekul adalah...",
+    pilihan: ["CH₄", "HF", "HCl", "HBr"],
+    jawabanBenar: 1,
+    pembahasan: "Ikatan hidrogen terbentuk jika H terikat pada atom sangat elektronegatif (N, O, F). HF memenuhi syarat tersebut, sedangkan HCl/HBr tidak." }
+];
+
+/* =============================================================
+   2. KONSTANTA GAME
+   Skor bertingkat: puncak = Rp 3.000.000 (Lembar Daun)
+   ============================================================= */
+const SKOR_TINGKAT = [
+  /* Stage 1 */ 100, 200, 500, 1000, 2000,
+  /* Stage 2 */ 5000, 10000, 20000, 50000, 100000,
+  /* Stage 3 */ 200000, 500000, 1000000, 2000000, 3000000
+];
+const SAFE_SCORE = [2000, 100000]; // setelah soal 5 dan soal 10
+const WAKTU_PER_SOAL = 60;         // 1 menit
+const TOTAL_SOAL = 15;
+const LS_KEY = "wwtbamKimiaXI";
+
+/* =============================================================
+   3. STATE
+   ============================================================= */
+let state = {
+  namaSiswa: "",
+  soalList: [],
+  indexSoal: 0,
+  skorSaatIni: 0,
+  bantuanTerpakai: [],
+  riwayat: [],
+  answered: false,
+  timerId: null,
+  timeLeft: WAKTU_PER_SOAL
+};
+let currentQ = null;
+
+/* =============================================================
+   4. UTIL
+   ============================================================= */
+function $(id) { return document.getElementById(id); }
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function show(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(screenId).classList.add('active');
+  $('app').scrollTop = 0;
+}
+function formatNumber(n) { return n.toLocaleString('id-ID'); }
+
+/* =============================================================
+   5. AUDIO
+   ============================================================= */
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+function beep(freq, dur, type='sine', vol=0.08) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+function sfxClick() { beep(440, 0.05, 'square', 0.04); }
+function sfxCorrect() { beep(660, 0.1); setTimeout(() => beep(880, 0.18), 100); }
+function sfxWrong() { beep(220, 0.25, 'sawtooth', 0.06); setTimeout(() => beep(150, 0.3, 'sawtooth', 0.06), 150); }
+function sfxJackpot() { [523,659,784,1046,1318].forEach((f,i) => setTimeout(() => beep(f, 0.18), i*110)); }
+function sfxTick() { beep(880, 0.03, 'square', 0.02); }
+
+/* =============================================================
+   6. THREE.JS
+   ============================================================= */
+function initThree() {
+  const canvas = $('bg3d');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.z = 6;
+
+  const meshOuter = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(2.2, 1),
+    new THREE.MeshBasicMaterial({ color: 0xffd700, wireframe: true, transparent: true, opacity: 0.22 })
+  );
+  scene.add(meshOuter);
+
+  const meshInner = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.2, 0),
+    new THREE.MeshBasicMaterial({ color: 0x4a6bff, wireframe: true, transparent: true, opacity: 0.4 })
+  );
+  scene.add(meshInner);
+
+  const pGeo = new THREE.BufferGeometry();
+  const N = 350;
+  const pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    pos[i*3]   = (Math.random() - 0.5) * 22;
+    pos[i*3+1] = (Math.random() - 0.5) * 22;
+    pos[i*3+2] = (Math.random() - 0.5) * 22;
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
+    color: 0xffd700, size: 0.045, transparent: true, opacity: 0.55
+  }));
+  scene.add(particles);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    meshOuter.rotation.x += 0.0016;
+    meshOuter.rotation.y += 0.0024;
+    meshInner.rotation.x -= 0.003;
+    meshInner.rotation.y -= 0.004;
+    particles.rotation.y += 0.0004;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+/* =============================================================
+   7. PERSIAPAN SOAL
+   ============================================================= */
+function prepareQuestions() {
+  const byStage = { 1: [], 2: [], 3: [] };
+  SOAL.forEach(q => byStage[q.stage].push(q));
+
+  const selected = [];
+  for (let s = 1; s <= 3; s++) {
+    const pool = shuffle([...byStage[s]]);
+    selected.push(...pool.slice(0, 5));
+  }
+
+  return selected.map(q => {
+    const idx = [0, 1, 2, 3];
+    shuffle(idx);
+    const newPilihan = idx.map(i => q.pilihan[i]);
+    const newJawaban = idx.indexOf(q.jawabanBenar);
+    return { ...q, pilihan: newPilihan, jawabanBenar: newJawaban };
+  });
+}
+
+/* =============================================================
+   8. MULAI GAME
+   ============================================================= */
+function startGame(nama, resume = false) {
+  initAudio();
+  if (!resume) {
+    state = {
+      namaSiswa: nama || "Siswa",
+      soalList: prepareQuestions(),
+      indexSoal: 0,
+      skorSaatIni: 0,
+      bantuanTerpakai: [],
+      riwayat: [],
+      answered: false,
+      timerId: null,
+      timeLeft: WAKTU_PER_SOAL
+    };
+  }
+  show('gameScreen');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  state.answered = false;
+  currentQ = state.soalList[state.indexSoal];
+
+  $('hudStage').textContent = currentQ.stage;
+  $('hudSoal').textContent = (state.indexSoal + 1) + "/" + TOTAL_SOAL;
+  $('hudSkor').textContent = formatNumber(state.skorSaatIni);
+
+  $('topicTag').textContent = currentQ.topik.toUpperCase();
+  $('questionText').textContent = currentQ.pertanyaan;
+
+  const optsEl = $('options');
+  optsEl.innerHTML = "";
+  const letters = ['A', 'B', 'C', 'D'];
+  currentQ.pilihan.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.dataset.idx = i;
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span class="option-text">${p}</span>`;
+    btn.onclick = () => handleAnswer(i);
+    optsEl.appendChild(btn);
+  });
+
+  $('feedback').classList.remove('show');
+
+  // Update lifelines (fifty / teman / guru)
+  ['fifty','teman','guru'].forEach(k => {
+    const el = { fifty: $('llFifty'), teman: $('llTeman'), guru: $('llGuru') }[k];
+    el.classList.toggle('used', state.bantuanTerpakai.includes(k));
+  });
+
+  startTimer();
+}
+
+/* =============================================================
+   9. TIMER (60 detik)
+   ============================================================= */
+function startTimer() {
+  clearInterval(state.timerId);
+  state.timeLeft = WAKTU_PER_SOAL;
+  updateTimerUI();
+  state.timerId = setInterval(() => {
+    state.timeLeft -= 0.1;
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerId);
+      state.timeLeft = 0;
+      updateTimerUI();
+      handleTimeout();
+    } else {
+      updateTimerUI();
+      if (state.timeLeft <= 10 && Math.abs(state.timeLeft - Math.round(state.timeLeft)) < 0.05) {
+        sfxTick();
+      }
+    }
+  }, 100);
+}
+function updateTimerUI() {
+  const pct = (state.timeLeft / WAKTU_PER_SOAL) * 100;
+  const fill = $('timerFill');
+  fill.style.width = pct + "%";
+  fill.classList.toggle('low', state.timeLeft <= 10);
+  $('timerText').textContent = Math.ceil(state.timeLeft);
+}
+function stopTimer() { clearInterval(state.timerId); }
+
+/* =============================================================
+   10. HANDLE JAWABAN
+   ============================================================= */
+function handleAnswer(idx) {
+  if (state.answered) return;
+  state.answered = true;
+  stopTimer();
+
+  const benar = (idx === currentQ.jawabanBenar);
+  const waktuPakai = Math.round((WAKTU_PER_SOAL - state.timeLeft) * 10) / 10;
+
+  state.riwayat.push({
+    no: state.indexSoal + 1,
+    id: currentQ.id,
+    topik: currentQ.topik,
+    pertanyaan: currentQ.pertanyaan,
+    jawabanSiswa: currentQ.pilihan[idx],
+    jawabanBenar: currentQ.pilihan[currentQ.jawabanBenar],
+    benar: benar,
+    waktu: waktuPakai
+  });
+
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((o, i) => {
+    o.classList.add('disabled');
+    if (i === currentQ.jawabanBenar) o.classList.add('correct');
+    if (i === idx && !benar) o.classList.add('wrong');
+  });
+
+  if (benar) {
+    state.skorSaatIni = SKOR_TINGKAT[state.indexSoal];
+    if (state.indexSoal === TOTAL_SOAL - 1) sfxJackpot(); else sfxCorrect();
+  } else {
+    sfxWrong();
+    state.skorSaatIni = getSafeScore(state.indexSoal);
+  }
+  $('hudSkor').textContent = formatNumber(state.skorSaatIni);
+
+  const fb = $('feedback');
+  const ft = $('feedbackTitle');
+  const fx = $('feedbackText');
+  ft.className = 'feedback-title ' + (benar ? 'ok' : 'no');
+  ft.textContent = benar ? '✓ BENAR!' : '✗ SALAH';
+  fx.innerHTML = `<b>Jawaban benar:</b> ${currentQ.pilihan[currentQ.jawabanBenar]}<br><br>
+                  <b>Pembahasan:</b> ${currentQ.pembahasan}`;
+  fb.classList.add('show');
+
+  $('btnNext').textContent = (!benar || state.indexSoal === TOTAL_SOAL - 1)
+    ? 'LIHAT HASIL →' : 'LANJUT →';
+
+  saveProgress();
+}
+
+function handleTimeout() {
+  if (state.answered) return;
+  state.answered = true;
+  sfxWrong();
+
+  state.riwayat.push({
+    no: state.indexSoal + 1,
+    id: currentQ.id,
+    topik: currentQ.topik,
+    pertanyaan: currentQ.pertanyaan,
+    jawabanSiswa: "(waktu habis)",
+    jawabanBenar: currentQ.pilihan[currentQ.jawabanBenar],
+    benar: false,
+    waktu: WAKTU_PER_SOAL
+  });
+
+  state.skorSaatIni = getSafeScore(state.indexSoal);
+  $('hudSkor').textContent = formatNumber(state.skorSaatIni);
+
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((o, i) => {
+    o.classList.add('disabled');
+    if (i === currentQ.jawabanBenar) o.classList.add('correct');
+  });
+
+  const fb = $('feedback');
+  fb.classList.add('show');
+  $('feedbackTitle').className = 'feedback-title no';
+  $('feedbackTitle').textContent = '⏰ WAKTU HABIS';
+  $('feedbackText').innerHTML = `<b>Jawaban benar:</b> ${currentQ.pilihan[currentQ.jawabanBenar]}<br><br>
+                                  <b>Pembahasan:</b> ${currentQ.pembahasan}`;
+  $('btnNext').textContent = 'LIHAT HASIL →';
+
+  saveProgress();
+}
+
+function getSafeScore(currentIdx) {
+  if (currentIdx >= 10) return SAFE_SCORE[1]; // 100.000
+  if (currentIdx >= 5)  return SAFE_SCORE[0]; // 2.000
+  return 0;
+}
+
+/* =============================================================
+   11. LANJUT / END
+   ============================================================= */
+$('btnNext').onclick = () => {
+  sfxClick();
+  const lastAnswer = state.riwayat[state.riwayat.length - 1];
+  if (!lastAnswer.benar || state.indexSoal === TOTAL_SOAL - 1) {
+    endGame(lastAnswer.benar && state.indexSoal === TOTAL_SOAL - 1);
+  } else {
+    state.indexSoal++;
+    renderQuestion();
+  }
+};
+
+function endGame(menang) {
+  stopTimer();
+  show('endScreen');
+
+  $('endTitle').textContent = menang ? '🏆 JUARA KIMIA!' : 'GAME OVER';
+  $('endTitle').classList.toggle('lose', !menang);
+  $('endSub').textContent = menang
+    ? 'KAMU BERHASIL MENJAWAB SEMUA SOAL DENGAN BENAR!'
+    : (state.riwayat.length > 0 && state.riwayat[state.riwayat.length-1].benar === false
+        ? 'KAMU TERHENTI DI SOAL ' + (state.indexSoal + 1)
+        : 'SELESAI');
+
+  $('endScore').textContent = formatNumber(state.skorSaatIni);
+  $('endPrizeNote').textContent = menang
+    ? '🎉 HADIAH: Rp 3.000.000 (Lembar Daun)'
+    : '🎯 Target: Rp 3.000.000 (Lembar Daun)';
+
+  const benar = state.riwayat.filter(r => r.benar).length;
+  const salah = state.riwayat.filter(r => !r.benar).length;
+  $('statBenar').textContent = benar;
+  $('statSalah').textContent = salah;
+  $('statBantuan').textContent = state.bantuanTerpakai.length;
+
+  const list = $('summaryList');
+  list.innerHTML = "";
+  state.riwayat.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'summary-row ' + (r.benar ? 'ok' : 'no');
+    row.innerHTML = `
+      <span class="num">${r.no}</span>
+      <span class="txt">${r.pertanyaan.slice(0, 60)}${r.pertanyaan.length > 60 ? '…' : ''}</span>
+      <span class="icon">${r.benar ? '✅' : '❌'}</span>
+    `;
+    list.appendChild(row);
+  });
+
+  saveProgress(true);
+}
+
+/* =============================================================
+   12. LIFELINES: 50:50 · Tanya Teman · Tanya Guru
+   ============================================================= */
+document.querySelectorAll('.lifeline').forEach(btn => {
+  btn.onclick = () => {
+    const jenis = btn.dataset.ll;
+    if (state.bantuanTerpakai.includes(jenis)) return;
+    if (state.answered) return;
+    sfxClick();
+    state.bantuanTerpakai.push(jenis);
+    btn.classList.add('used');
+
+    if (jenis === 'fifty') useFifty();
+    else if (jenis === 'teman') useTeman();
+    else if (jenis === 'guru') useGuru();
+
+    saveProgress();
+  };
+});
+
+function useFifty() {
+  const salah = [];
+  document.querySelectorAll('.option').forEach((o, i) => {
+    if (i !== currentQ.jawabanBenar) salah.push(o);
+  });
+  shuffle(salah);
+  salah.slice(0, 2).forEach(o => o.classList.add('eliminated'));
+}
+
+function useTeman() {
+  // Polling teman-teman sekelas → diagram batang persentase
+  const correct = currentQ.jawabanBenar;
+  const weights = [1, 1, 1, 1];
+  weights[correct] = 6 + Math.random() * 4;
+  const total = weights.reduce((a, b) => a + b, 0);
+  let dist = weights.map(w => Math.round(w / total * 100));
+  const diff = 100 - dist.reduce((a, b) => a + b, 0);
+  dist[correct] += diff;
+
+  const letters = ['A', 'B', 'C', 'D'];
+  $('modalTitle').textContent = '👥 POLLING TEMAN-TEMAN';
+  $('modalBody').innerHTML = `
+    <div class="audience-bars">
+      ${dist.map((v, i) => `
+        <div class="audience-col">
+          <div class="audience-pct">${v}%</div>
+          <div class="audience-bar ${i === correct ? 'best' : ''}" style="height: ${v}%"></div>
+          <div class="audience-label">${letters[i]}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  $('modalOverlay').classList.add('show');
+}
+
+function useGuru() {
+  // Saran dari guru (80% benar)
+  const correct = currentQ.jawabanBenar;
+  const letters = ['A', 'B', 'C', 'D'];
+  const isCorrect = Math.random() < 0.8;
+  let saranIdx;
+  if (isCorrect) {
+    saranIdx = correct;
+  } else {
+    const wrongs = [0,1,2,3].filter(i => i !== correct);
+    saranIdx = wrongs[Math.floor(Math.random() * wrongs.length)];
+  }
+
+  $('modalTitle').textContent = '📞 SARAN DARI GURU';
+  $('modalBody').innerHTML = `
+    <div class="phone-message">
+      Menurut Bapak/Ibu Guru, jawaban yang paling tepat adalah...
+      <b>${letters[saranIdx]}. ${currentQ.pilihan[saranIdx]}</b>
+    </div>
+  `;
+  $('modalOverlay').classList.add('show');
+}
+
+$('btnModalClose').onclick = () => {
+  sfxClick();
+  $('modalOverlay').classList.remove('show');
+};
+$('modalOverlay').onclick = (e) => {
+  if (e.target === $('modalOverlay')) $('modalOverlay').classList.remove('show');
+};
+
+/* =============================================================
+   13. LOCALSTORAGE
+   ============================================================= */
+function saveProgress(isFinal = false) {
+  const data = {
+    namaSiswa: state.namaSiswa,
+    progresSoal: state.riwayat.length,
+    indexSoal: state.indexSoal,
+    skorSaatIni: state.skorSaatIni,
+    bantuanTerpakai: state.bantuanTerpakai,
+    riwayat: state.riwayat,
+    soalList: state.soalList,
+    selesai: isFinal,
+    timestamp: new Date().toISOString()
+  };
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); }
+  catch (e) { console.warn("Gagal menyimpan:", e); }
+}
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function hasSavedProgress() {
+  const d = loadProgress();
+  return d && !d.selesai && d.progresSoal > 0 && d.progresSoal < TOTAL_SOAL;
+}
+
+/* =============================================================
+   14. START SCREEN EVENTS
+   ============================================================= */
+$('btnMulai').onclick = () => {
+  sfxClick();
+  const nama = $('inputNama').value.trim();
+  if (!nama) {
+    $('inputNama').focus();
+    $('inputNama').style.borderColor = '#ef4444';
+    setTimeout(() => { $('inputNama').style.borderColor = ''; }, 1200);
+    return;
+  }
+  localStorage.removeItem(LS_KEY);
+  startGame(nama, false);
+};
+
+$('btnMuat').onclick = () => {
+  sfxClick();
+  const data = loadProgress();
+  if (!data) return;
+  state = {
+    namaSiswa: data.namaSiswa,
+    soalList: data.soalList,
+    indexSoal: data.indexSoal,
+    skorSaatIni: data.skorSaatIni,
+    bantuanTerpakai: data.bantuanTerpakai || [],
+    riwayat: data.riwayat || [],
+    answered: false,
+    timerId: null,
+    timeLeft: WAKTU_PER_SOAL
+  };
+  if (state.indexSoal >= TOTAL_SOAL) { show('endScreen'); endGame(false); return; }
+  startGame(data.namaSiswa, true);
+};
+
+function refreshStartScreen() {
+  $('btnMuat').classList.toggle('hidden', !hasSavedProgress());
+}
+
+/* =============================================================
+   15. END SCREEN EVENTS
+   ============================================================= */
+$('btnDownload').onclick = () => {
+  sfxClick();
+  const benar = state.riwayat.filter(r => r.benar).length;
+  const salah = state.riwayat.filter(r => !r.benar).length;
+  const exportData = {
+    aplikasi: "Kuis Kimia XI — Siapa Ingin Jadi Juara Kimia",
+    hadiahUtama: "Rp 3.000.000 (Lembar Daun)",
+    namaSiswa: state.namaSiswa,
+    tanggal: new Date().toISOString(),
+    skorAkhir: state.skorSaatIni,
+    totalSoal: TOTAL_SOAL,
+    soalDijawab: state.riwayat.length,
+    soalBenar: benar,
+    soalSalah: salah,
+    bantuanTerpakai: state.bantuanTerpakai,
+    menang: benar === TOTAL_SOAL,
+    riwayat: state.riwayat
+  };
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const safeName = (state.namaSiswa || 'siswa').replace(/[^a-zA-Z0-9]/g, '_');
+  const date = new Date().toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `hasil-kuis-${safeName}-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+$('btnMainLagi').onclick = () => {
+  sfxClick();
+  localStorage.removeItem(LS_KEY);
+  startGame(state.namaSiswa, false);
+};
+
+$('btnKeStart').onclick = () => {
+  sfxClick();
+  stopTimer();
+  show('startScreen');
+  refreshStartScreen();
+};
+
+$('btnQuit').onclick = () => {
+  sfxClick();
+  saveProgress(false);
+  stopTimer();
+  show('startScreen');
+  refreshStartScreen();
+};
+
+/* =============================================================
+   16. INIT
+   ============================================================= */
+window.addEventListener('DOMContentLoaded', () => {
+  initThree();
+  refreshStartScreen();
+});
+
+document.addEventListener('click', function once() {
+  initAudio();
+  document.removeEventListener('click', once);
+}, { once: true });
+
+let lastTouch = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouch <= 300) e.preventDefault();
+  lastTouch = now;
+}, { passive: false });
+</script>
+</body>
+</html>
